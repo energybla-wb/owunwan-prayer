@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오운완 이용 가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Black+Han+Sans&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #faf7f3;
+    color: #3e3a36;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 640px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 56px 0 40px;
+  }
+  .hero-icon { font-size: 64px; margin-bottom: 12px; }
+  .hero h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 42px;
+    letter-spacing: 3px;
+    color: #3e3a36;
+    margin-bottom: 6px;
+  }
+  .hero p { font-size: 16px; color: #a89a8c; letter-spacing: 1px; }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    background: #fff;
+    border: 1px solid #e8e0d8;
+    color: #6b6158;
+    padding: 10px 20px;
+    border-radius: 24px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav a:hover { background: #c9a96e; color: #fff; border-color: #c9a96e; }
+
+  /* Section */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-label {
+    display: inline-block;
+    background: #c9a96e;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  /* Step Card */
+  .step {
+    background: #fff;
+    border: 1px solid #ece6df;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #c9a96e, #d4b87a);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #3e3a36;
+  }
+  .step-desc {
+    font-size: 14px;
+    color: #6b6158;
+    line-height: 1.7;
+  }
+  .step-visual {
+    margin-top: 14px;
+    background: #f7f3ee;
+    border: 1px solid #e8e0d8;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .step-visual .mock-btn {
+    display: inline-block;
+    background: #c9a96e;
+    color: #fff;
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .step-visual .mock-input {
+    background: #fff;
+    border: 1px solid #e0d8d0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    width: 100%;
+    max-width: 280px;
+    margin: 6px auto;
+    display: block;
+    color: #a89a8c;
+    font-size: 13px;
+    text-align: left;
+  }
+  .step-visual .mock-tab {
+    display: inline-block;
+    background: #c9a96e;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 3px;
+  }
+  .step-visual .mock-tab-off {
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #e8e0d8;
+    color: #a89a8c;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin: 3px;
+  }
+
+  /* Phone mockup */
+  .phone-mock {
+    width: 220px;
+    margin: 0 auto;
+    background: #1a1c20;
+    border-radius: 28px;
+    padding: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  }
+  .phone-screen {
+    background: #faf7f3;
+    border-radius: 18px;
+    overflow: hidden;
+    padding: 16px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .phone-screen .app-icon {
+    font-size: 40px;
+  }
+  .phone-screen .app-name {
+    font-size: 12px;
+    color: #3e3a36;
+    font-weight: 600;
+  }
+
+  /* OS tabs */
+  .os-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e8e0d8;
+  }
+  .os-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #fff;
+    border: none;
+    color: #a89a8c;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .os-tab.active {
+    background: #3e3a36;
+    color: #fff;
+  }
+
+  .os-content { display: none; }
+  .os-content.active { display: block; }
+
+  /* Tip box */
+  .tip {
+    background: #fff8ee;
+    border: 1px solid #f0e4d0;
+    border-left: 3px solid #c9a96e;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #5a5248;
+    line-height: 1.7;
+  }
+  .tip strong { color: #c9a96e; }
+
+  /* Browser mockup */
+  .browser-mock {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 12px 0;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .browser-bar {
+    background: #f0f0f0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  .browser-dots {
+    display: flex;
+    gap: 4px;
+  }
+  .browser-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+  }
+  .browser-url {
+    font-size: 11px;
+    color: #888;
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex: 1;
+  }
+  .browser-menu {
+    font-size: 14px;
+    color: #888;
+  }
+  .browser-body {
+    padding: 16px;
+    text-align: center;
+  }
+
+  /* Menu mockup */
+  .menu-mock {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    max-width: 260px;
+    margin: 12px auto;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .menu-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+  }
+  .menu-item.highlight {
+    color: #c9a96e;
+    font-weight: 600;
+    background: #fffbf5;
+  }
+
+  .divider {
+    height: 1px;
+    background: #ece6df;
+    margin: 48px 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 32px 0;
+    color: #c4b8aa;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-icon">🙏</div>
+    <h1>오운완</h1>
+    <p>이용 가이드</p>
+  </div>
+
+  <div class="nav">
+    <a href="#usage">이용 방법</a>
+    <a href="#install-iphone">아이폰 설치</a>
+    <a href="#install-galaxy">갤럭시 설치</a>
+  </div>
+
+  <!-- ===== 이용 방법 ===== -->
+  <div class="section" id="usage">
+    <span class="section-label">이용 방법</span>
+    <h2>기도제목을 나눠보세요</h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">링크 접속</div>
+        <div class="step-desc">공유받은 링크를 클릭하여 접속합니다.</div>
+        <div class="step-visual">
+          <div class="browser-mock">
+            <div class="browser-bar">
+              <div class="browser-dots"><span></span><span></span><span></span></div>
+              <div class="browser-url">owunwan-project.vercel.app</div>
+            </div>
+            <div class="browser-body">
+              <div style="font-size:36px;margin-bottom:6px;">🙏</div>
+              <div style="font-family:'Black Han Sans';font-size:24px;letter-spacing:2px;">오운완</div>
+              <div style="font-size:12px;color:#a89a8c;">함께 기도해요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">로그인</div>
+        <div class="step-desc">이름과 비밀번호(숫자 4자리)를 입력합니다. 처음 오시는 분은 원하는 이름과 비밀번호를 설정하면 자동으로 계정이 생성됩니다.</div>
+        <div class="step-visual">
+          <div class="mock-input">이름</div>
+          <div class="mock-input">비밀번호 (숫자 4자리)</div>
+          <div style="margin-top:10px;"><span class="mock-btn">로그인</span></div>
+        </div>
+        <div class="tip">💡 <strong>비밀번호를 잊지 마세요!</strong> 다음에 같은 이름+비밀번호로 로그인해야 기도제목을 수정할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">기도작성 페이지로 이동</div>
+        <div class="step-desc">로그인하면 대시보드가 보입니다. "기도작성 페이지로 이동" 버튼을 눌러주세요.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">주차 선택</div>
+        <div class="step-desc">상단의 주차 탭에서 기도제목을 작성할 주를 선택합니다. 현재 주차와 지난 주차가 활성화되어 있습니다.</div>
+        <div class="step-visual">
+          <span class="mock-tab">1주</span>
+          <span class="mock-tab">2주</span>
+          <span class="mock-tab-off">3주</span>
+          <span class="mock-tab-off">4주</span>
+          <span class="mock-tab-off">5주</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">기도제목 작성</div>
+        <div class="step-desc">기도제목을 입력하고, 공개 또는 비공개를 선택한 뒤 등록 버튼을 누릅니다.</div>
+        <div class="tip">
+          🌐 <strong>공개</strong> — 모든 사람이 볼 수 있습니다<br>
+          🔒 <strong>비공개</strong> — 관리자만 볼 수 있습니다
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">댓글로 서로 격려하기</div>
+        <div class="step-desc">다른 사람의 기도제목에 댓글을 달아 서로 격려해주세요. 본인이 작성한 댓글은 수정·삭제할 수 있습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== 홈 화면 설치 ===== -->
+  <div class="section" id="install">
+    <span class="section-label">홈 화면 설치</span>
+    <h2>앱처럼 바로 접속하기</h2>
+    <p style="color:#6b6158;font-size:14px;margin-bottom:24px;">홈 화면에 추가하면 매번 링크를 찾지 않아도 앱 아이콘을 눌러 바로 접속할 수 있습니다.</p>
+
+    <div class="os-tabs">
+      <button class="os-tab active" onclick="switchOS('iphone')">🍎 아이폰</button>
+      <button class="os-tab" onclick="switchOS('galaxy')">📱 갤럭시</button>
+    </div>
+
+    <!-- iPhone -->
+    <div class="os-content active" id="os-iphone">
+      <div class="step" id="install-iphone">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Safari로 접속</div>
+          <div class="step-desc">반드시 <strong>Safari</strong> 브라우저로 접속해야 합니다. 카카오톡 내장 브라우저에서는 설치가 안 됩니다.</div>
+          <div class="tip">💡 카카오톡에서 링크를 받았다면, 오른쪽 하단 <strong>"Safari로 열기"</strong> 또는 <strong>"..."</strong> 버튼을 눌러 Safari에서 열어주세요.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">공유 버튼 누르기</div>
+          <div class="step-desc">Safari 화면 <strong>하단 가운데</strong>에 있는 공유 버튼(네모에서 화살표가 올라가는 아이콘)을 누릅니다.</div>
+          <div class="step-visual">
+            <div style="font-size:40px;color:#007AFF;">⬆️</div>
+            <div style="font-size:12px;color:#888;margin-top:4px;">Safari 하단 중앙의 이 아이콘</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">"홈 화면에 추가" 선택</div>
+          <div class="step-desc">공유 메뉴에서 아래로 스크롤하면 <strong>"홈 화면에 추가"</strong> 항목이 있습니다.</div>
+          <div class="step-visual">
+            <div class="menu-mock">
+              <div class="menu-item">메시지</div>
+              <div class="menu-item">메일</div>
+              <div class="menu-item highlight">➕ 홈 화면에 추가</div>
+              <div class="menu-item">즐겨찾기에 추가</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">"추가" 버튼 누르기</div>
+          <div class="step-desc">오른쪽 상단의 <strong>"추가"</strong>를 누르면 완료! 홈 화면에 기도손 아이콘이 나타납니다.</div>
+          <div class="step-visual">
+            <div class="phone-mock">
+              <div class="phone-screen">
+                <div class="app-icon">🙏</div>
+                <div class="app-name">오운완</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#888;margin-top:10px;">홈 화면에서 바로 접속!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Galaxy -->
+    <div class="os-content" id="os-galaxy">
+      <div class="step" id="install-galaxy">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Chrome으로 접속</div>
+          <div class="step-desc"><strong>Chrome</strong> 브라우저로 접속해야 합니다. 삼성 인터넷이나 카카오톡 내장 브라우저에서는 설치가 안 될 수 있습니다.</div>
+          <div class="tip">💡 카카오톡에서 링크를 받았다면, 오른쪽 하단 <strong>"..."</strong> → <strong>"다른 브라우저로 열기"</strong>를 눌러 Chrome에서 열어주세요.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">메뉴 열기</div>
+          <div class="step-desc">Chrome 화면 <strong>오른쪽 상단</strong>에 있는 점 세 개(⋮) 버튼을 누릅니다.</div>
+          <div class="step-visual">
+            <div class="browser-mock">
+              <div class="browser-bar">
+                <div class="browser-url" style="flex:1;">owunwan-project.vercel.app</div>
+                <div class="browser-menu" style="font-size:18px;font-weight:bold;letter-spacing:1px;cursor:pointer;">⋮</div>
+              </div>
+              <div class="browser-body" style="padding:12px;">
+                <div style="font-size:11px;color:#888;">← 이 버튼을 누르세요</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">"홈 화면에 추가" 또는 "앱 설치" 선택</div>
+          <div class="step-desc">메뉴에서 <strong>"홈 화면에 추가"</strong> 또는 <strong>"앱 설치"</strong>를 선택합니다. (Chrome 버전에 따라 문구가 다를 수 있어요)</div>
+          <div class="step-visual">
+            <div class="menu-mock">
+              <div class="menu-item">새 탭</div>
+              <div class="menu-item">북마크</div>
+              <div class="menu-item highlight">📲 홈 화면에 추가</div>
+              <div class="menu-item">설정</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">"추가" 누르면 완료!</div>
+          <div class="step-desc">확인 팝업에서 <strong>"추가"</strong>를 누르면 홈 화면에 아이콘이 생깁니다.</div>
+          <div class="step-visual">
+            <div class="phone-mock">
+              <div class="phone-screen">
+                <div class="app-icon">🙏</div>
+                <div class="app-name">오운완</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#888;margin-top:10px;">홈 화면에서 바로 접속!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="tip" style="text-align:center;">
+    궁금한 점이 있으면 관리자에게 문의해주세요 🙏
+  </div>
+
+  <div class="footer">오운완 © 2026</div>
+</div>
+
+<script>
+function switchOS(os) {
+  document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.os-content').forEach(c => c.classList.remove('active'));
+  if (os === 'iphone') {
+    document.querySelectorAll('.os-tab')[0].classList.add('active');
+    document.getElementById('os-iphone').classList.add('active');
+  } else {
+    document.querySelectorAll('.os-tab')[1].classList.add('active');
+    document.getElementById('os-galaxy').classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
