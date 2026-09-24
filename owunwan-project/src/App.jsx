@@ -139,7 +139,7 @@ export default function App() {
             <p style={S.cardDesc}>이름과 비밀번호로 로그인하여 기도제목을 나눠주세요</p>
             <div style={S.formDiv}>
               <input style={S.input} placeholder="이름" value={loginName} onChange={(e) => setLoginName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") doLogin(); }} />
-              <input style={S.input} type="password" inputMode="numeric" maxLength={4} placeholder="비밀번호 (숫자 4자리)" value={loginPw} onChange={(e) => { const v = e.target.value.replace(/[^0-9]/g, ""); if (v.length <= 4) setLoginPw(v); }} onKeyDown={(e) => { if (e.key === "Enter") doLogin(); }} />
+              <input style={S.input} type="password" placeholder="비밀번호 (숫자 4자리)" value={loginPw} onChange={(e) => setLoginPw(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") doLogin(); }} />
               <button type="button" style={S.primaryBtn} onClick={doLogin}>로그인</button>
             </div>
             <p style={S.loginHint}>* 처음 오시는 분은 이름과 비밀번호(숫자 4자리)를 설정하시면 됩니다.<br/>* 이후 같은 정보로 로그인하여 기도제목을 수정할 수 있습니다.</p>
