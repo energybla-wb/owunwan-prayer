@@ -273,6 +273,33 @@ export default function App() {
             </div>}
 
             {isAdmin && <div style={S.histSection}>
+              <h3 style={S.secTitle}>📊 이번 주 참여 현황</h3>
+              <div style={S.participationWrap}>{(() => {
+                const um = {}; WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => { if (p.pw) um[p.name + "|" + p.pwHash] = { name: p.name, pwHash: p.pwHash }; }));
+                const allUsers = Object.values(um);
+                const thisWeek = prayers[selectedWeek] || [];
+                if (allUsers.length === 0) return <p style={S.histEmpty}>아직 등록된 사용자가 없습니다.</p>;
+                const wrote = allUsers.filter(u => thisWeek.some(p => p.name === u.name && p.pwHash === u.pwHash));
+                const notWrote = allUsers.filter(u => !thisWeek.some(p => p.name === u.name && p.pwHash === u.pwHash));
+                return <>
+                  <div style={S.participationSummary}>
+                    <span style={S.participationDone}>참여 {wrote.length}명</span>
+                    <span style={S.participationBar}><span style={{...S.participationFill, width: `${allUsers.length > 0 ? (wrote.length / allUsers.length * 100) : 0}%`}} /></span>
+                    <span style={S.participationTotal}>{allUsers.length}명 중</span>
+                  </div>
+                  {wrote.length > 0 && <div style={S.participationGroup}>
+                    <p style={S.participationLabel}>✅ 작성 완료</p>
+                    <div style={S.participationNames}>{wrote.map((u, i) => <span key={i} style={S.participationChipDone}>{u.name}</span>)}</div>
+                  </div>}
+                  {notWrote.length > 0 && <div style={S.participationGroup}>
+                    <p style={S.participationLabel}>⏳ 미작성</p>
+                    <div style={S.participationNames}>{notWrote.map((u, i) => <span key={i} style={S.participationChipPending}>{u.name}</span>)}</div>
+                  </div>}
+                </>;
+              })()}</div>
+            </div>}
+
+            {isAdmin && <div style={S.histSection}>
               <h3 style={S.secTitle}>👤 등록된 사용자 목록</h3>
               <div style={S.userList}>{(() => {
                 const um = {}; WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => { if (p.pw) um[p.name + "|" + p.pwHash] = { name: p.name, pw: p.pw, pwHash: p.pwHash }; }));
@@ -404,4 +431,15 @@ const S = {
   modalCancelBtn: { background: "#f0ebe5", border: "none", color: "#6b6158", padding: "10px 24px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontFamily: "'Noto Sans KR', sans-serif" },
   footer: { borderTop: "1px solid #ece6df", padding: "20px", textAlign: "center", marginTop: "auto" },
   footerText: { fontSize: "12px", color: "#c4b8aa", letterSpacing: "1px" },
+  participationWrap: { display: "flex", flexDirection: "column", gap: "16px" },
+  participationSummary: { display: "flex", alignItems: "center", gap: "12px" },
+  participationDone: { fontSize: "14px", fontWeight: 600, color: "#388e3c", whiteSpace: "nowrap" },
+  participationBar: { flex: 1, height: "8px", background: "#ece6df", borderRadius: "4px", overflow: "hidden" },
+  participationFill: { display: "block", height: "100%", background: "linear-gradient(90deg, #66bb6a, #43a047)", borderRadius: "4px", transition: "width 0.5s ease" },
+  participationTotal: { fontSize: "13px", color: "#a89a8c", whiteSpace: "nowrap" },
+  participationGroup: { display: "flex", flexDirection: "column", gap: "8px" },
+  participationLabel: { fontSize: "13px", fontWeight: 500, color: "#6b6158" },
+  participationNames: { display: "flex", flexWrap: "wrap", gap: "6px" },
+  participationChipDone: { background: "#e8f5e9", color: "#2e7d32", padding: "4px 12px", borderRadius: "14px", fontSize: "13px", fontWeight: 500 },
+  participationChipPending: { background: "#fff3e0", color: "#e65100", padding: "4px 12px", borderRadius: "14px", fontSize: "13px", fontWeight: 500 },
 };
