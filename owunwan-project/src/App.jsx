@@ -300,6 +300,34 @@ export default function App() {
             </div>}
 
             {isAdmin && <div style={S.histSection}>
+              <h3 style={S.secTitle}>🏆 전체 참여 순위 (15주 누적)</h3>
+              <div style={S.leaderboardWrap}>{(() => {
+                const um = {}; WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => {
+                  if (p.pw) {
+                    const k = p.name + "|" + p.pwHash;
+                    if (!um[k]) um[k] = { name: p.name, count: 0 };
+                    um[k].count++;
+                  }
+                }));
+                const ranked = Object.values(um).sort((a, b) => b.count - a.count);
+                const activeWeeks = WEEKS.filter(isWeekActive).length;
+                if (ranked.length === 0) return <p style={S.histEmpty}>아직 등록된 사용자가 없습니다.</p>;
+                return ranked.map((u, i) => (
+                  <div key={i} style={S.leaderRow}>
+                    <div style={S.leaderRank}>
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={S.leaderRankNum}>{i + 1}</span>}
+                    </div>
+                    <span style={S.leaderName}>{u.name}</span>
+                    <div style={S.leaderBarWrap}>
+                      <div style={{...S.leaderBarFill, width: `${(u.count / activeWeeks) * 100}%`}} />
+                    </div>
+                    <span style={S.leaderCount}>{u.count}/{activeWeeks}주</span>
+                  </div>
+                ));
+              })()}</div>
+            </div>}
+
+            {isAdmin && <div style={S.histSection}>
               <h3 style={S.secTitle}>👤 등록된 사용자 목록</h3>
               <div style={S.userList}>{(() => {
                 const um = {}; WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => { if (p.pw) um[p.name + "|" + p.pwHash] = { name: p.name, pw: p.pw, pwHash: p.pwHash }; }));
@@ -442,4 +470,12 @@ const S = {
   participationNames: { display: "flex", flexWrap: "wrap", gap: "6px" },
   participationChipDone: { background: "#e8f5e9", color: "#2e7d32", padding: "4px 12px", borderRadius: "14px", fontSize: "13px", fontWeight: 500 },
   participationChipPending: { background: "#fff3e0", color: "#e65100", padding: "4px 12px", borderRadius: "14px", fontSize: "13px", fontWeight: 500 },
+  leaderboardWrap: { display: "flex", flexDirection: "column", gap: "8px" },
+  leaderRow: { display: "flex", alignItems: "center", gap: "12px", background: "#fff", border: "1px solid #ece6df", borderRadius: "10px", padding: "12px 16px" },
+  leaderRank: { fontSize: "20px", width: "32px", textAlign: "center", flexShrink: 0 },
+  leaderRankNum: { fontSize: "14px", fontWeight: 600, color: "#a89a8c" },
+  leaderName: { fontSize: "14px", fontWeight: 600, color: "#3e3a36", minWidth: "60px", flexShrink: 0 },
+  leaderBarWrap: { flex: 1, height: "8px", background: "#f0ebe5", borderRadius: "4px", overflow: "hidden" },
+  leaderBarFill: { height: "100%", background: "linear-gradient(90deg, #c9a96e, #d4b87a)", borderRadius: "4px", transition: "width 0.5s ease", minWidth: "4px" },
+  leaderCount: { fontSize: "13px", fontWeight: 600, color: "#c9a96e", whiteSpace: "nowrap", flexShrink: 0 },
 };
