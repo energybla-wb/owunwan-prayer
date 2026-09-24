@@ -37,6 +37,8 @@ export default function App() {
   const [announcementText, setAnnouncementText] = useState("");
   const [editingAnnouncement, setEditingAnnouncement] = useState(false);
   const [commentTexts, setCommentTexts] = useState({});
+  const [editingCommentKey, setEditingCommentKey] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
 
   const showNotification = useCallback((msg, type = "success") => { setNotification({ msg, type }); setTimeout(() => setNotification(null), 3000); }, []);
 
@@ -93,9 +95,13 @@ export default function App() {
 
   async function handleDeleteUser(name, pwHash) { try { for (const w of WEEKS) { const ref = doc(db, "prayers", w.key); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const f = c.filter((p) => !(p.name === name && p.pwHash === pwHash)); if (f.length !== c.length) tx.set(ref, { items: f }); }); } await loadAllData(true); setDeleteConfirm(null); showNotification(`${name}님의 모든 데이터가 삭제되었습니다.`); } catch { showNotification("삭제 실패", "error"); } }
 
-  async function addComment(pN, pH) { const ck = `${pN}-${pH}`, text = (commentTexts[ck] || "").trim(); if (!text || submitting) return; setSubmitting(true); const cn = isAdmin ? "관리자" : currentUser.name; try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: [...(p.comments || []), { name: cn, text, createdAt: new Date().toISOString() }] } : p); tx.set(ref, { items: u }); }); await loadAllData(true); setCommentTexts((prev) => ({ ...prev, [ck]: "" })); showNotification("댓글이 등록되었습니다."); } catch { showNotification("댓글 등록 실패", "error"); } finally { setSubmitting(false); } }
+  async function addComment(pN, pH) { const ck = `${pN}-${pH}`, text = (commentTexts[ck] || "").trim(); if (!text || submitting) return; setSubmitting(true); const cn = isAdmin ? "관리자" : currentUser.name; const cph = isAdmin ? "admin" : currentUser.pwHash; try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: [...(p.comments || []), { name: cn, pwHash: cph, text, createdAt: new Date().toISOString() }] } : p); tx.set(ref, { items: u }); }); await loadAllData(true); setCommentTexts((prev) => ({ ...prev, [ck]: "" })); showNotification("댓글이 등록되었습니다."); } catch { showNotification("댓글 등록 실패", "error"); } finally { setSubmitting(false); } }
 
-  async function deleteComment(pN, pH, ci) { try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).filter((_, i) => i !== ci) } : p); tx.set(ref, { items: u }); }); await loadAllData(true); } catch {} }
+  async function editComment(pN, pH, ci, newText) { if (!newText.trim() || submitting) return; setSubmitting(true); try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).map((cm, i) => i === ci ? { ...cm, text: newText.trim(), editedAt: new Date().toISOString() } : cm) } : p); tx.set(ref, { items: u }); }); await loadAllData(true); setEditingCommentKey(null); showNotification("댓글이 수정되었습니다."); } catch { showNotification("댓글 수정 실패", "error"); } finally { setSubmitting(false); } }
+
+  async function deleteComment(pN, pH, ci) { try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).filter((_, i) => i !== ci) } : p); tx.set(ref, { items: u }); }); await loadAllData(true); showNotification("댓글이 삭제되었습니다."); } catch { showNotification("댓글 삭제 실패", "error"); } }
+
+  function isCommentOwner(comment) { if (isAdmin && comment.pwHash === "admin") return true; return currentUser && comment.pwHash === currentUser.pwHash && comment.name === currentUser.name; }
 
   function startEdit(p) { setPrayerText(p.text); setPrayerPublic(p.isPublic); setEditingPrayer(p); }
   function canSee(p) { return p.isPublic || isAdmin || (currentUser && p.name === currentUser.name && p.pwHash === currentUser.pwHash); }
@@ -241,14 +247,26 @@ export default function App() {
                   <p style={S.cardDate}>{new Date(pr.updatedAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}</p>
                   <div style={S.cmtSection}>
                     {(pr.comments || []).length > 0 && <div style={S.cmtList}>
-                      {(pr.comments || []).map((c, ci) => <div key={ci} style={S.cmtItem}>
+                      {(pr.comments || []).map((c, ci) => { const cmtKey = `${pr.name}-${pr.pwHash}-${ci}`; return <div key={ci} style={S.cmtItem}>
                         <div style={S.cmtTop}>
                           <span style={S.cmtName}>{c.name}</span>
-                          <span style={S.cmtDate}>{new Date(c.createdAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>
-                          {isAdmin && <button type="button" style={{ ...S.actBtn, color: "#e53935", fontSize: "11px" }} onClick={() => deleteComment(pr.name, pr.pwHash, ci)}>삭제</button>}
+                          <span style={S.cmtDate}>{new Date(c.createdAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}{c.editedAt ? " (수정됨)" : ""}</span>
+                          {(isCommentOwner(c) || isAdmin) && editingCommentKey !== cmtKey && <>
+                            {isCommentOwner(c) && <button type="button" style={{ ...S.actBtn, fontSize: "11px" }} onClick={() => { setEditingCommentKey(cmtKey); setEditingCommentText(c.text); }}>수정</button>}
+                            <button type="button" style={{ ...S.actBtn, color: "#e53935", fontSize: "11px" }} onClick={() => deleteComment(pr.name, pr.pwHash, ci)}>삭제</button>
+                          </>}
                         </div>
-                        <p style={S.cmtText}>{c.text}</p>
-                      </div>)}
+                        {editingCommentKey === cmtKey ? (
+                          <div style={S.cmtEditRow}>
+                            <input style={S.cmtInput} value={editingCommentText} onChange={(e) => setEditingCommentText(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") editComment(pr.name, pr.pwHash, ci, editingCommentText); }} />
+                            <button type="button" style={S.cmtBtn} onClick={() => editComment(pr.name, pr.pwHash, ci, editingCommentText)} disabled={submitting}>저장</button>
+                            <button type="button" style={{ ...S.actBtn, fontSize: "12px" }} onClick={() => setEditingCommentKey(null)}>취소</button>
+                          </div>
+                        ) : (
+                          <p style={S.cmtText}>{c.text}</p>
+                        )}
+                      </div>; })}
                     </div>}
                     {(currentUser || isAdmin) && <div style={S.cmtInputRow}>
                       <input style={S.cmtInput} placeholder="댓글을 입력하세요..." value={commentTexts[ck] || ""}
@@ -438,6 +456,7 @@ const S = {
   cmtDate: { fontSize: "11px", color: "#c4b8aa" },
   cmtText: { fontSize: "13px", lineHeight: 1.6, color: "#6b6158" },
   cmtInputRow: { display: "flex", gap: "8px", alignItems: "center" },
+  cmtEditRow: { display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" },
   cmtInput: { flex: 1, background: "#f7f3ee", border: "1px solid #e8e0d8", borderRadius: "20px", padding: "8px 14px", color: "#3e3a36", fontSize: "13px", outline: "none" },
   cmtBtn: { background: "#c9a96e", border: "none", color: "#fff", padding: "8px 18px", borderRadius: "20px", cursor: "pointer", fontSize: "12px", fontWeight: 600, fontFamily: "'Noto Sans KR', sans-serif", flexShrink: 0 },
   histSection: { borderTop: "1px solid #ece6df", paddingTop: "32px", marginBottom: "32px" },
