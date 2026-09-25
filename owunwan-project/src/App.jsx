@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { db } from "./firebase.js";
 import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { Analytics } from "@vercel/analytics/react";
 
 const WEEKS = [];
 for (let i = 0; i < 15; i++) {
@@ -391,6 +392,7 @@ export default function App() {
         </div>}
       </main>
       <footer style={S.footer}><p style={S.footerText}>오운완 © 2026</p></footer>
+      <Analytics />
     </div>
   );
 }
