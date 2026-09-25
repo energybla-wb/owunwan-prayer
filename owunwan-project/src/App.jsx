@@ -53,7 +53,7 @@ export default function App() {
   }, []);
 
   useEffect(() => { loadAllData(); }, [loadAllData]);
-  useEffect(() => { if (view !== "prayer") return; const t = setInterval(() => loadAllData(true), 30000); return () => clearInterval(t); }, [view, loadAllData]);
+  useEffect(() => { if (view !== "prayer") return; const t = setInterval(() => loadAllData(true), 45000); return () => clearInterval(t); }, [view, loadAllData]);
 
   function doLogin() {
     const name = loginName.trim(), pw = loginPw.trim();
