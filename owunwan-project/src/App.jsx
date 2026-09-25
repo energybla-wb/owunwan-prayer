@@ -19,9 +19,11 @@ function isWeekActive(w) { if (w.key === "week-01") return new Date() >= new Dat
 function getDefaultWeek() { const a = WEEKS.filter(isWeekActive); return a.length > 0 ? a[a.length - 1].key : WEEKS[0].key; }
 
 export default function App() {
-  const [view, setView] = useState("home");
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // 로그인 상태 복원
+  const saved = (() => { try { const s = sessionStorage.getItem("owunwan-user"); return s ? JSON.parse(s) : null; } catch { return null; } })();
+  const [view, setView] = useState(saved ? "dashboard" : "home");
+  const [currentUser, setCurrentUser] = useState(saved?.type === "user" ? saved : null);
+  const [isAdmin, setIsAdmin] = useState(saved?.type === "admin");
   const [selectedWeek, setSelectedWeek] = useState(getDefaultWeek());
   const [prayers, setPrayers] = useState({});
   const [announcements, setAnnouncements] = useState({});
@@ -60,12 +62,17 @@ export default function App() {
     if (!name || !pw) { showNotification("이름과 비밀번호를 입력해주세요.", "error"); return; }
     if (name !== ADMIN_NAME && (!/^\d{4}$/.test(pw))) { showNotification("비밀번호는 숫자 4자리로 입력해주세요.", "error"); return; }
     if (name === ADMIN_NAME && pw === ADMIN_PASSWORD) {
-      setIsAdmin(true); setCurrentUser(null); setView("dashboard"); setLoginName(""); setLoginPw(""); showNotification("관리자로 로그인했습니다."); return;
+      setIsAdmin(true); setCurrentUser(null); setView("dashboard"); setLoginName(""); setLoginPw("");
+      try { sessionStorage.setItem("owunwan-user", JSON.stringify({ type: "admin" })); } catch {}
+      showNotification("관리자로 로그인했습니다."); return;
     }
-    setCurrentUser({ name, pw, pwHash: hashPassword(pw) }); setIsAdmin(false); setView("dashboard"); setLoginName(""); setLoginPw(""); showNotification(`${name}님, 환영합니다.`);
+    const user = { type: "user", name, pw, pwHash: hashPassword(pw) };
+    setCurrentUser(user); setIsAdmin(false); setView("dashboard"); setLoginName(""); setLoginPw("");
+    try { sessionStorage.setItem("owunwan-user", JSON.stringify(user)); } catch {}
+    showNotification(`${name}님, 환영합니다.`);
   }
 
-  function handleLogout() { setCurrentUser(null); setIsAdmin(false); setView("home"); setEditingPrayer(null); setPrayerText(""); setPrayerPublic(true); setEditingAnnouncement(false); }
+  function handleLogout() { setCurrentUser(null); setIsAdmin(false); setView("home"); setEditingPrayer(null); setPrayerText(""); setPrayerPublic(true); setEditingAnnouncement(false); try { sessionStorage.removeItem("owunwan-user"); } catch {} }
   function goHome() { setView(currentUser || isAdmin ? "dashboard" : "home"); setEditingPrayer(null); setEditingAnnouncement(false); }
 
   async function saveAnnouncement() {
