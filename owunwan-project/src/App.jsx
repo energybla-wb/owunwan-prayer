@@ -397,7 +397,7 @@ export default function App() {
           </>}
         </div>}
       </main>
-      <footer style={S.footer}><p style={S.footerText}>오운완 © 2026</p></footer>
+      <footer style={S.footer}><p style={S.footerText}>오운완 © 2026</p><p style={S.footerCredit}>made by 공정한 사다리 연구소</p></footer>
     </div>
   );
 }
@@ -515,6 +515,7 @@ const S = {
   modalCancelBtn: { background: "#f0ebe5", border: "none", color: "#6b6158", padding: "10px 24px", borderRadius: "10px", cursor: "pointer", fontSize: "14px", fontFamily: "'Noto Sans KR', sans-serif" },
   footer: { borderTop: "1px solid #ece6df", padding: "20px", textAlign: "center", marginTop: "auto" },
   footerText: { fontSize: "12px", color: "#c4b8aa", letterSpacing: "1px" },
+  footerCredit: { fontSize: "10px", color: "#d5cdc4", marginTop: "6px", letterSpacing: "0.5px" },
   participationWrap: { display: "flex", flexDirection: "column", gap: "16px" },
   participationSummary: { display: "flex", alignItems: "center", gap: "12px" },
   participationDone: { fontSize: "14px", fontWeight: 600, color: "#388e3c", whiteSpace: "nowrap" },
