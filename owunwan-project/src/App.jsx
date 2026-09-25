@@ -346,6 +346,36 @@ export default function App() {
             </div>}
 
             {isAdmin && <div style={S.histSection}>
+              <h3 style={S.secTitle}>💬 댓글 활동 순위</h3>
+              <div style={S.leaderboardWrap}>{(() => {
+                const cm = {};
+                WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => {
+                  (p.comments || []).forEach((c) => {
+                    const k = c.name + (c.pwHash || "");
+                    if (!cm[k]) cm[k] = { name: c.name, count: 0, chars: 0 };
+                    cm[k].count++;
+                    cm[k].chars += (c.text || "").length;
+                  });
+                }));
+                const ranked = Object.values(cm).sort((a, b) => b.count - a.count);
+                if (ranked.length === 0) return <p style={S.histEmpty}>아직 댓글이 없습니다.</p>;
+                const maxCount = ranked[0].count;
+                return ranked.map((u, i) => (
+                  <div key={i} style={S.leaderRow}>
+                    <div style={S.leaderRank}>
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : <span style={S.leaderRankNum}>{i + 1}</span>}
+                    </div>
+                    <span style={S.leaderName}>{u.name}</span>
+                    <div style={S.leaderBarWrap}>
+                      <div style={{...S.leaderBarFill, background: "linear-gradient(90deg, #5c9ce6, #7ab4f5)", width: `${(u.count / maxCount) * 100}%`}} />
+                    </div>
+                    <span style={{ ...S.leaderCount, color: "#5c9ce6" }}>{u.count}개 · {u.chars}자</span>
+                  </div>
+                ));
+              })()}</div>
+            </div>}
+
+            {isAdmin && <div style={S.histSection}>
               <h3 style={S.secTitle}>👤 등록된 사용자 목록</h3>
               <div style={S.userList}>{(() => {
                 const um = {}; WEEKS.forEach((w) => (prayers[w.key] || []).forEach((p) => { if (p.pw) um[p.name + "|" + p.pwHash] = { name: p.name, pw: p.pw, pwHash: p.pwHash }; }));
