@@ -54,8 +54,13 @@ export default function App() {
     setPrayers(allP); setAnnouncements(allA); setLoading(false);
   }, []);
 
+  const loadWeekData = useCallback(async (weekKey) => {
+    try { const s = await getDoc(doc(db, "prayers", weekKey)); setPrayers((prev) => ({ ...prev, [weekKey]: s.exists() ? s.data().items || [] : [] })); } catch {}
+    try { const s = await getDoc(doc(db, "announcements", weekKey)); setAnnouncements((prev) => ({ ...prev, [weekKey]: s.exists() ? s.data().text || "" : "" })); } catch {}
+  }, []);
+
   useEffect(() => { loadAllData(); }, [loadAllData]);
-  useEffect(() => { if (view !== "prayer") return; const t = setInterval(() => loadAllData(true), 45000); return () => clearInterval(t); }, [view, loadAllData]);
+  useEffect(() => { if (view !== "prayer") return; const t = setInterval(() => loadWeekData(selectedWeek), 45000); return () => clearInterval(t); }, [view, selectedWeek, loadWeekData]);
 
   function doLogin() {
     const name = loginName.trim(), pw = loginPw.trim();
@@ -77,7 +82,7 @@ export default function App() {
 
   async function saveAnnouncement() {
     if (submitting) return; setSubmitting(true);
-    try { const ref = doc(db, "announcements", selectedWeek); await runTransaction(db, async (tx) => { tx.set(ref, { text: announcementText.trim(), updatedAt: new Date().toISOString() }); }); await loadAllData(true); setEditingAnnouncement(false); showNotification("공통 기도제목이 저장되었습니다."); } catch { showNotification("저장 실패", "error"); } finally { setSubmitting(false); }
+    try { const ref = doc(db, "announcements", selectedWeek); await runTransaction(db, async (tx) => { tx.set(ref, { text: announcementText.trim(), updatedAt: new Date().toISOString() }); }); await loadWeekData(selectedWeek); setEditingAnnouncement(false); showNotification("공통 기도제목이 저장되었습니다."); } catch { showNotification("저장 실패", "error"); } finally { setSubmitting(false); }
   }
 
   async function doSubmitPrayer() {
@@ -94,19 +99,19 @@ export default function App() {
         const upd = idx >= 0 ? cur.map((p, i) => i === idx ? entry : p) : [...cur, entry];
         tx.set(ref, { items: upd });
       });
-      await loadAllData(true); setPrayerText(""); setPrayerPublic(true); setEditingPrayer(null); showNotification("기도제목이 저장되었습니다.");
+      await loadWeekData(selectedWeek); setPrayerText(""); setPrayerPublic(true); setEditingPrayer(null); showNotification("기도제목이 저장되었습니다.");
     } catch { showNotification("저장 실패", "error"); } finally { setSubmitting(false); }
   }
 
-  async function handleDeletePrayer(wk, name, pwHash) { try { const ref = doc(db, "prayers", wk); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; tx.set(ref, { items: c.filter((p) => !(p.name === name && p.pwHash === pwHash)) }); }); await loadAllData(true); setDeleteConfirm(null); showNotification("삭제되었습니다."); } catch { showNotification("삭제 실패", "error"); } }
+  async function handleDeletePrayer(wk, name, pwHash) { try { const ref = doc(db, "prayers", wk); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; tx.set(ref, { items: c.filter((p) => !(p.name === name && p.pwHash === pwHash)) }); }); await loadWeekData(wk); setDeleteConfirm(null); showNotification("삭제되었습니다."); } catch { showNotification("삭제 실패", "error"); } }
 
   async function handleDeleteUser(name, pwHash) { try { for (const w of WEEKS) { const ref = doc(db, "prayers", w.key); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const f = c.filter((p) => !(p.name === name && p.pwHash === pwHash)); if (f.length !== c.length) tx.set(ref, { items: f }); }); } await loadAllData(true); setDeleteConfirm(null); showNotification(`${name}님의 모든 데이터가 삭제되었습니다.`); } catch { showNotification("삭제 실패", "error"); } }
 
-  async function addComment(pN, pH) { const ck = `${pN}-${pH}`, text = (commentTexts[ck] || "").trim(); if (!text || submitting) return; setSubmitting(true); const cn = isAdmin ? "관리자" : currentUser.name; const cph = isAdmin ? "admin" : currentUser.pwHash; try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: [...(p.comments || []), { name: cn, pwHash: cph, text, createdAt: new Date().toISOString() }] } : p); tx.set(ref, { items: u }); }); await loadAllData(true); setCommentTexts((prev) => ({ ...prev, [ck]: "" })); showNotification("댓글이 등록되었습니다."); } catch { showNotification("댓글 등록 실패", "error"); } finally { setSubmitting(false); } }
+  async function addComment(pN, pH) { const ck = `${pN}-${pH}`, text = (commentTexts[ck] || "").trim(); if (!text || submitting) return; setSubmitting(true); const cn = isAdmin ? "관리자" : currentUser.name; const cph = isAdmin ? "admin" : currentUser.pwHash; try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: [...(p.comments || []), { name: cn, pwHash: cph, text, createdAt: new Date().toISOString() }] } : p); tx.set(ref, { items: u }); }); await loadWeekData(selectedWeek); setCommentTexts((prev) => ({ ...prev, [ck]: "" })); showNotification("댓글이 등록되었습니다."); } catch { showNotification("댓글 등록 실패", "error"); } finally { setSubmitting(false); } }
 
-  async function editComment(pN, pH, ci, newText) { if (!newText.trim() || submitting) return; setSubmitting(true); try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).map((cm, i) => i === ci ? { ...cm, text: newText.trim(), editedAt: new Date().toISOString() } : cm) } : p); tx.set(ref, { items: u }); }); await loadAllData(true); setEditingCommentKey(null); showNotification("댓글이 수정되었습니다."); } catch { showNotification("댓글 수정 실패", "error"); } finally { setSubmitting(false); } }
+  async function editComment(pN, pH, ci, newText) { if (!newText.trim() || submitting) return; setSubmitting(true); try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).map((cm, i) => i === ci ? { ...cm, text: newText.trim(), editedAt: new Date().toISOString() } : cm) } : p); tx.set(ref, { items: u }); }); await loadWeekData(selectedWeek); setEditingCommentKey(null); showNotification("댓글이 수정되었습니다."); } catch { showNotification("댓글 수정 실패", "error"); } finally { setSubmitting(false); } }
 
-  async function deleteComment(pN, pH, ci) { try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).filter((_, i) => i !== ci) } : p); tx.set(ref, { items: u }); }); await loadAllData(true); showNotification("댓글이 삭제되었습니다."); } catch { showNotification("댓글 삭제 실패", "error"); } }
+  async function deleteComment(pN, pH, ci) { try { const ref = doc(db, "prayers", selectedWeek); await runTransaction(db, async (tx) => { const s = await tx.get(ref); const c = s.exists() ? s.data().items || [] : []; const u = c.map((p) => p.name === pN && p.pwHash === pH ? { ...p, comments: (p.comments || []).filter((_, i) => i !== ci) } : p); tx.set(ref, { items: u }); }); await loadWeekData(selectedWeek); showNotification("댓글이 삭제되었습니다."); } catch { showNotification("댓글 삭제 실패", "error"); } }
 
   function isCommentOwner(comment) { if (isAdmin && comment.pwHash === "admin") return true; return currentUser && comment.pwHash === currentUser.pwHash && comment.name === currentUser.name; }
 
